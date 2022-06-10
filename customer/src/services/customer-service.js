@@ -48,7 +48,6 @@ class CustomerService {
       name,
       email,
       password,
-      salt,
       sex,
       number,
       street,
@@ -56,34 +55,29 @@ class CustomerService {
       district,
       city,
     } = userInputs;
-    const address = {
-      number,
-      street,
-      phuong,
-      district,
-      city,
-    };
 
     try {
       // create salt
       let salt = await GenerateSalt();
 
       let userPassword = await GeneratePassword(password, salt);
-
       const existingCustomer = await this.repository.CreateCustomer({
         name,
         email,
         password: userPassword,
         salt,
         sex,
-        address: address,
+        number,
+        street,
+        phuong,
+        district,
+        city,
       });
 
       const token = await GenerateSignature({
         email: email,
         _id: existingCustomer._id,
       });
-
       return FormatData({ id: existingCustomer._id, token });
     } catch (err) {
       throw new APIError("Data Not found", err);
