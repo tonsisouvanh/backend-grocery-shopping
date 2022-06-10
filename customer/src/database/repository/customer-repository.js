@@ -4,19 +4,42 @@ const {
   BadRequestError,
   STATUS_CODES,
 } = require("../../utils/app-errors");
+const Address = require("../models/Address");
 
 //Dealing with data base operations
 class CustomerRepository {
-  
-  async CreateCustomer({ email, password, phone, salt }) {
+  async CreateCustomer({
+    name,
+    email,
+    password,
+    salt,
+    sex,
+    number,
+    street,
+    phuong,
+    district,
+    city,
+  }) {
     try {
-      const customer = new CustomerModel({
-        email,
-        password,
-        salt,
-        phone,
-        address: [],
+      // const saveAddress = new Address({});
+      const address = new AddressModel({
+        number,
+        street,
+        phuong,
+        district,
+        city,
       });
+
+      const savedAddress = await address.save();
+      const customer = new CustomerModel({
+        name: name,
+        email: email,
+        password: password,
+        salt: salt,
+        sex: sex,
+        address: savedAddress._id, // need to handle for adding address
+      });
+
       const customerResult = await customer.save();
       return customerResult;
     } catch (err) {
@@ -98,8 +121,6 @@ class CustomerRepository {
       );
     }
   }
-
-
 
   async AddCartItem(customerId, { _id, name, price, banner }, qty, isRemove) {
     try {
